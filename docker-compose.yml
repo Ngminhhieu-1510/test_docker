@@ -1,31 +1,30 @@
 
-
 services:
-  # Service cho PostgreSQL
+  # Service Postgres
   db:
     image: postgres:14
     container_name: postgres_db
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: books_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Service cho ứng dụng BookManagementApp (Spring Boot)
-  bookmanagementapp:
-    build: .  # Docker Compose sẽ sử dụng Dockerfile trong thư mục hiện tại để build image
-    container_name: book_management_app
+  # Service Spring Boot
+  springboot:
+    build: .  # Dockerfile của ứng dụng Spring Boot nằm ở thư mục hiện tại
+    container_name: springboot_app
     depends_on:
       - db
     ports:
-      - "8080:8080"
+      - "9090:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/books_db
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
 
 volumes:
   postgres_data:

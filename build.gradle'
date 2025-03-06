@@ -43,3 +43,12 @@ dependencies {
     // Driver kết nối tới PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
 }
+dependencies {
+    // Dependency cho Spring Boot Starter Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    
+    // Dependency cho PostgreSQL Driver (nếu bạn sử dụng PostgreSQL)
+    runtimeOnly 'org.postgresql:postgresql'
+    
+    // Các dependency khác ...
+}
