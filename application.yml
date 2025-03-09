@@ -1,9 +1,0 @@
-# URL kết nối (ở đây là localhost, thay đổi nếu chạy trong Docker)
-spring.datasource.url=jdbc:postgresql://localhost:5432/mydatabase
-spring.datasource.username=admin
-spring.datasource.password=admin
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# Cấu hình JPA (nếu bạn dùng JPA)
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.ddl-auto=update

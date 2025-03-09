@@ -27,19 +27,16 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 dependencies {
-    // Starter Web cho ứng dụng Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // Starter Test (có JUnit, MockMvc,...)
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    // ...
 }
 dependencies {
-    // Hỗ trợ JDBC
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    // Driver kết nối tới PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
+}
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
