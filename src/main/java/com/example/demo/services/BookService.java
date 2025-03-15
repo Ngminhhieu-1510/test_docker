@@ -9,24 +9,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.demo.models.Book;
-import com.example.demo.repositories.BookRepository;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-
 @Service
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
 
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    @Autowired
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
-    public Optional<Book> findById(Long id) {
+    // Phương thức tìm book theo id
+    public Book findById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found with id = " + id));
+    }
+    public Optional<Book> getBookById(Long id) {
         return bookRepository.findById(id);
     }
 
@@ -34,19 +32,24 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    // Ví dụ: Phương thức lưu
+
+
+    // Ví dụ: Lấy danh sách
+    public List<Book> findAll() {
+        return bookRepository.findAll();
+    }
+
+    // Xoá
     public void deleteById(Long id) {
         bookRepository.deleteById(id);
     }
 
-    public List<Book> findByTitle(String title) {
-        return bookRepository.findByTitle(title);
+    // ... (các phương thức khác nếu cần)
+    public Book saveBook(Book book) {
+        return bookRepository.save(book);
     }
 
-    public List<Book> findByPublishedDateAfter(LocalDate date) {
-        return bookRepository.findByPublishedDateAfter(date);
-    }
+
+
 }
-
-
-
-

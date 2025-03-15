@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 @Repository
 public class BookRepository {
 
@@ -47,4 +49,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     // Tìm theo createDate
     List<Book> findByCreateDate(LocalDate createDate);
+
+    List<Book> findByPublishedDateAfter(LocalDate date);
+
+
 }
+public interface BookRepository extends JpaRepository<Book, Long> {
+    Optional<Book> findById(Long id);
+}
+

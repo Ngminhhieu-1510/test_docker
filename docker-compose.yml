@@ -1,9 +1,6 @@
-
+version: '3.8'
 services:
-  # Service Postgres SQL: structured query language
-  # mySQL, MSSQL, SQLite, Postgres, Oracle
   db:
-    restart: always
     image: postgres:14-alpine
     container_name: postgres_db
     environment:
@@ -15,18 +12,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Service Spring Boot
   springboot:
-    build: .  # Dockerfile của ứng dụng Spring Boot nằm ở thư mục hiện tại
+    build: .
     container_name: springboot_app
     depends_on:
       - db
     ports:
       - "9090:8080"
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
-#      SPRING_DATASOURCE_USERNAME: admin
-#      SPRING_DATASOURCE_PASSWORD: admin
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      # Các biến khác nếu cần
 
   pgadmin:
     image: dpage/pgadmin4

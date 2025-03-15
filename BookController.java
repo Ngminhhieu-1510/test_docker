@@ -63,3 +63,7 @@ public class BookController {
         return bookRepository.testConnection();
     }
 }
+@GetMapping("/test-exception")
+public String testException() {
+    throw new IllegalArgumentException("Fake exception for testing!");
+}

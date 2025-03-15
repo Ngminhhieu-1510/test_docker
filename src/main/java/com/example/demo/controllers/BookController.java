@@ -2,12 +2,10 @@ package com.example.demo.controllers;
 
 import com.example.demo.models.Book;
 import com.example.demo.services.BookService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,48 +13,97 @@ import java.util.Optional;
 @RequestMapping("/books")
 public class BookController {
 
-    @Autowired
-    private BookService bookService;
+    private final BookService bookService;
 
+    // Constructor injection để Spring tự tiêm bean BookService
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+
+
+
+    // 1. Lấy danh sách tất cả sách
     @GetMapping
-    public List<Book> findAll() {
-        return bookService.findAll();
+    public ResponseEntity<?> getAllBooks() {
+        try {
+            List<Book> books = bookService.findAll();
+            return ResponseEntity.ok(books);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error retrieving books: " + e.getMessage());
+        }
     }
 
+    // 2. Lấy thông tin sách theo ID
     @GetMapping("/{id}")
-    public Optional<Book> findById(@PathVariable Long id) {
-        return bookService.findById(id);
+    public ResponseEntity<?> getBookById(@PathVariable Long id) {
+        try {
+            Book book = bookService.findById(id);
+            return ResponseEntity.ok(book);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Book not found: " + e.getMessage());
+        }
     }
 
-    // create a book
-    @ResponseStatus(HttpStatus.CREATED) // 201
+    // 3. Tạo mới sách
     @PostMapping
-    public Book create(@RequestBody Book book) {
-        return bookService.save(book);
+    public ResponseEntity<?> createBook(@RequestBody Book book) {
+        try {
+            Book savedBook = bookService.save(book);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating book: " + e.getMessage());
+        }
     }
 
-    // update a book
-    @PutMapping
-    public Book update(@RequestBody Book book) {
-        return bookService.save(book);
+    // 4. Cập nhật sách (sử dụng PUT với path variable ID)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
+        try {
+            // Tìm sách theo ID
+            Optional<Book> optionalBook = bookService.getBookById(id);
+            if (optionalBook.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found.");
+            }
+
+            // Lấy sách cũ và cập nhật thông tin
+            Book existingBook = optionalBook.get();
+            existingBook.setTitle(bookDetails.getTitle());
+            existingBook.setAuthor(bookDetails.getAuthor());
+            existingBook.setPublishDate(bookDetails.getPublishDate());
+            existingBook.setPrice(bookDetails.getPrice());
+
+            // Lưu sách đã cập nhật
+            Book updatedBook = bookService.save(existingBook);
+            return ResponseEntity.ok(updatedBook);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating book: " + e.getMessage());
+        }
     }
 
-    // delete a book
-    @ResponseStatus(HttpStatus.NO_CONTENT) // 204
+
+    // 5. Xoá sách theo ID
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
-        bookService.deleteById(id);
+    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
+        try {
+            bookService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error deleting book: " + e.getMessage());
+        }
+    }
+    @RequestMapping("/products")
+    public class ProductController {
+        private BookService bookService;  // Inject BookService
+
+
     }
 
-    @GetMapping("/find/title/{title}")
-    public List<Book> findByTitle(@PathVariable String title) {
-        return bookService.findByTitle(title);
-    }
 
-    @GetMapping("/find/date-after/{date}")
-    public List<Book> findByPublishedDateAfter(
-            @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        return bookService.findByPublishedDateAfter(date);
-    }
 
 }

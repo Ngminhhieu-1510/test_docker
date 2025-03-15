@@ -1,5 +1,10 @@
 package com.example.demo;
 
+import com.example.demo.models.Book;
+import com.example.demo.repositories.BookRepository;
+import com.example.demo.services.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +20,9 @@ public class ProductController {
         products.add(new Product(1, "Product A", 100.0));
         products.add(new Product(2, "Product B", 150.0));
     }
+    @Autowired
+    private BookService bookService;  // Inject BookService
+
 
     // Endpoint GET: Lấy danh sách sản phẩm
     @GetMapping
@@ -35,6 +43,7 @@ public class ProductController {
         return product;
     }
 
+
     // Endpoint PUT: Cập nhật thông tin sản phẩm theo id
     @PutMapping("/{id}")
     public Product updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
@@ -54,6 +63,8 @@ public class ProductController {
         products.removeIf(p -> p.getId() == id);
         return "Deleted product with id " + id;
     }
+
+
 }
 
 // Lớp Product dùng làm Data Transfer Object (DTO)
@@ -90,3 +101,4 @@ class Product {
         this.price = price;
     }
 }
+
