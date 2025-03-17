@@ -1,11 +1,14 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.BookDTO;
 import com.example.demo.models.Book;
 import com.example.demo.services.BookService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,95 +18,77 @@ public class BookController {
 
     private final BookService bookService;
 
-    // Constructor injection để Spring tự tiêm bean BookService
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
 
-
-
-
-    // 1. Lấy danh sách tất cả sách
     @GetMapping
-    public ResponseEntity<?> getAllBooks() {
+    public ResponseEntity<?> getBooks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate publishDate) {
         try {
-            List<Book> books = bookService.findAll();
+            List<BookDTO> books;
+            if (title != null && !title.isEmpty() && publishDate != null) {
+                books = bookService.findByTitleAndPublishDate(title, publishDate);
+            } else if (title != null && !title.isEmpty()) {
+                books = bookService.findByTitle(title);
+            } else if (publishDate != null) {
+                books = bookService.findByPublishDate(publishDate);
+            } else {
+                books = bookService.getAllBooks();
+            }
             return ResponseEntity.ok(books);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error retrieving books: " + e.getMessage());
+                    .body("Lỗi khi lấy danh sách sách: " + e.getMessage());
         }
     }
 
-    // 2. Lấy thông tin sách theo ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getBookById(@PathVariable Long id) {
         try {
-            Book book = bookService.findById(id);
-            return ResponseEntity.ok(book);
+            Optional<Book> book = bookService.getBookById(id);
+            if (book.isPresent()) {
+                return ResponseEntity.ok(book.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy sách.");
+            }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Book not found: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi khi lấy thông tin sách: " + e.getMessage());
         }
     }
 
-    // 3. Tạo mới sách
     @PostMapping
     public ResponseEntity<?> createBook(@RequestBody Book book) {
         try {
-            Book savedBook = bookService.save(book);
+            Book savedBook = bookService.createBook(book);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating book: " + e.getMessage());
+                    .body("Lỗi khi tạo sách: " + e.getMessage());
         }
     }
 
-    // 4. Cập nhật sách (sử dụng PUT với path variable ID)
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
         try {
-            // Tìm sách theo ID
-            Optional<Book> optionalBook = bookService.getBookById(id);
-            if (optionalBook.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found.");
-            }
-
-            // Lấy sách cũ và cập nhật thông tin
-            Book existingBook = optionalBook.get();
-            existingBook.setTitle(bookDetails.getTitle());
-            existingBook.setAuthor(bookDetails.getAuthor());
-            existingBook.setPublishDate(bookDetails.getPublishDate());
-            existingBook.setPrice(bookDetails.getPrice());
-
-            // Lưu sách đã cập nhật
-            Book updatedBook = bookService.save(existingBook);
+            Book updatedBook = bookService.updateBook(id, bookDetails);
             return ResponseEntity.ok(updatedBook);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error updating book: " + e.getMessage());
+                    .body("Lỗi khi cập nhật sách: " + e.getMessage());
         }
     }
 
-
-    // 5. Xoá sách theo ID
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         try {
-            bookService.deleteById(id);
+            bookService.deleteBook(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting book: " + e.getMessage());
+                    .body("Lỗi khi xóa sách: " + e.getMessage());
         }
     }
-    @RequestMapping("/products")
-    public class ProductController {
-        private BookService bookService;  // Inject BookService
-
-
-    }
-
-
-
 }

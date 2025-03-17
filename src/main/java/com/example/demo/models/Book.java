@@ -20,6 +20,7 @@ public class Book {
     private String author;
     private LocalDate createDate;
 
+
     // Empty constructor (yêu cầu cho JPA)
     public Book() {
     }
