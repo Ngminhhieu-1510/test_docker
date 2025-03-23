@@ -2,7 +2,9 @@ package com.example.demo.services;
 
 import com.example.demo.dto.BookDTO;
 import com.example.demo.models.Book;
+import com.example.demo.models.BookCategory;
 import com.example.demo.repositories.BookRepository;
+import com.example.demo.repositories.BookCategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,12 +16,13 @@ import java.util.stream.Collectors;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final BookCategoryRepository bookCategoryRepository;
 
-    public BookService(BookRepository bookRepository) {
+    public BookService(BookRepository bookRepository, BookCategoryRepository bookCategoryRepository) {
         this.bookRepository = bookRepository;
+        this.bookCategoryRepository = bookCategoryRepository;
     }
 
-    // Lấy danh sách tất cả sách dưới dạng DTO
     public List<BookDTO> getAllBooks() {
         try {
             List<Book> books = bookRepository.findAll();
@@ -31,7 +34,6 @@ public class BookService {
         }
     }
 
-    // Lấy sách theo ID
     public Optional<Book> getBookById(Long id) {
         try {
             return bookRepository.findById(id);
@@ -40,16 +42,20 @@ public class BookService {
         }
     }
 
-    // Tạo sách mới
     public Book createBook(Book book) {
         try {
+            // Kiểm tra và thiết lập category
+            if (book.getCategory() != null && book.getCategory().getId() != null) {
+                BookCategory category = bookCategoryRepository.findById(book.getCategory().getId())
+                        .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với id: " + book.getCategory().getId()));
+                book.setCategory(category);
+            }
             return bookRepository.save(book);
         } catch (Exception e) {
             throw new RuntimeException("Lỗi khi tạo sách: " + e.getMessage());
         }
     }
 
-    // Cập nhật sách theo ID
     public Book updateBook(Long id, Book bookDetails) {
         try {
             return bookRepository.findById(id).map(existingBook -> {
@@ -57,6 +63,11 @@ public class BookService {
                 existingBook.setAuthor(bookDetails.getAuthor());
                 existingBook.setPublishDate(bookDetails.getPublishDate());
                 existingBook.setPrice(bookDetails.getPrice());
+                if (bookDetails.getCategory() != null && bookDetails.getCategory().getId() != null) {
+                    BookCategory category = bookCategoryRepository.findById(bookDetails.getCategory().getId())
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với id: " + bookDetails.getCategory().getId()));
+                    existingBook.setCategory(category);
+                }
                 return bookRepository.save(existingBook);
             }).orElseThrow(() -> new RuntimeException("Không tìm thấy sách với id: " + id));
         } catch (Exception e) {
@@ -64,7 +75,6 @@ public class BookService {
         }
     }
 
-    // Xóa sách theo ID
     public void deleteBook(Long id) {
         try {
             bookRepository.deleteById(id);
@@ -73,7 +83,6 @@ public class BookService {
         }
     }
 
-    // Tìm sách theo title và trả về DTO
     public List<BookDTO> findByTitle(String title) {
         try {
             List<Book> books = bookRepository.findByTitleContainingIgnoreCase(title);
@@ -85,7 +94,6 @@ public class BookService {
         }
     }
 
-    // Tìm sách theo publishDate và trả về DTO
     public List<BookDTO> findByPublishDate(LocalDate publishDate) {
         try {
             List<Book> books = bookRepository.findByPublishDate(publishDate);
@@ -97,7 +105,6 @@ public class BookService {
         }
     }
 
-    // Tìm sách theo title và publishDate và trả về DTO
     public List<BookDTO> findByTitleAndPublishDate(String title, LocalDate publishDate) {
         try {
             List<Book> books = bookRepository.findByTitleContainingIgnoreCaseAndPublishDate(title, publishDate);

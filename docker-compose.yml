@@ -11,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   springboot:
     build: .
@@ -20,12 +22,12 @@ services:
     ports:
       - "9090:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mydatabase
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: "true"
-      # Các biến khác nếu cần
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/mydatabase
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - app-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,6 +39,12 @@ services:
       - "5050:80"
     depends_on:
       - db
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

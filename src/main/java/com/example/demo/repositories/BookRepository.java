@@ -16,7 +16,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     // Kết hợp: tìm sách theo title chứa từ khoá và publishDate bằng giá trị cho trước
     List<Book> findByTitleContainingIgnoreCaseAndPublishDate(String title, LocalDate publishDate);
-
+    List<Book> findByCategoryId(Long categoryId);
 }
 
 

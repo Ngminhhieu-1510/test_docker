@@ -1,79 +1,62 @@
 package com.example.demo.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.math.BigDecimal;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "book")
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Sử dụng IDENTITY cho auto-increment
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
-    private BigDecimal price;
-    private LocalDate publishDate;   // Phải khớp với findByPublishDate(...)
+
     private String author;
-    private LocalDate createDate;
+    private LocalDate publishDate;
+    private Double price;
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private BookCategory category;
 
-    // Empty constructor (yêu cầu cho JPA)
-    public Book() {
-    }
-
-    // Constructor có tham số (nếu cần)
-    public Book(String title, String author, LocalDate createDate, BigDecimal price, LocalDate publishDate) {
+    // Constructor
+    public Book(String title, String author, LocalDate publishDate, Double price, BookCategory category) {
         this.title = title;
         this.author = author;
-        this.createDate = createDate;
-        this.price = price;
         this.publishDate = publishDate;
+        this.price = price;
+        this.category = category;
     }
 
-    // Getters and Setters
+    // Constructor mặc định được yêu cầu bởi JPA
+    public Book() {}
+
+    // Getters và setters
     public Long getId() {
-        return id;
-    }
+        return id; }
     public void setId(Long id) {
-        this.id = id;
-    }
-
+        this.id = id; }
     public String getTitle() {
-        return title;
-    }
+        return title; }
     public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public LocalDate getPublishDate() {
-        return publishDate;
-    }
-    public void setPublishDate(LocalDate publishDate) {
-        this.publishDate = publishDate;
-    }
-
+        this.title = title; }
     public String getAuthor() {
-        return author;
-    }
+        return author; }
     public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public LocalDate getCreateDate() {
-        return createDate;
-    }
-    public void setCreateDate(LocalDate createDate) {
-        this.createDate = createDate;
-    }
+        this.author = author; }
+    public LocalDate getPublishDate() {
+        return publishDate; }
+    public void setPublishDate(LocalDate publishDate) {
+        this.publishDate = publishDate; }
+    public Double getPrice() {
+        return price; }
+    public void setPrice(Double price) {
+        this.price = price; }
+    public BookCategory getCategory() {
+        return category; }
+    public void setCategory(BookCategory category) {
+        this.category = category; }
 }
